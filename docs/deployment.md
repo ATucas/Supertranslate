@@ -61,6 +61,36 @@ each image build.
 
 Do not put provider credentials in frontend environment variables. When a real provider is added, configure its secret only on the worker service (prefer a secret manager in production).
 
+## Video demo evidence
+
+The repository does not include the supplied MP4. Run the demo with the
+attachment or another local video path:
+
+```bash
+npm run demo:video -- \
+  /home/tuki/.copilot/attachments/1942f253-a669-4a07-a82c-0be0c9d0c986-istockphoto-1449608579-640_adpp_is.mp4 \
+  demo-output
+```
+
+This creates `subtitles.vtt`, `subtitles.srt`, `subtitles.txt`, and a README in
+`demo-output/`. If `ffmpeg` is installed, it also creates `audio.wav` as mono
+16 kHz normalized audio. Without FFmpeg, the evidence explicitly records that
+audio was not extracted. The current provider is simulated, so its bilingual
+captions are deliberately marked as simulated and are not claimed to be
+transcriptions or translations of the MP4 audio.
+
+To show the same demo flow in the audience UI, start the API, create an active
+session, then start the worker with the source path:
+
+```bash
+DEMO_VIDEO_PATH=/path/to/video.mp4 API_URL=http://localhost:3000 \
+  npm --workspace @subtitle/worker start
+```
+
+The worker validates that the source exists before emitting the existing
+WebSocket subtitle events. A future speech-to-text provider can replace
+`VideoDemoProvider` without changing the contracts or API.
+
 ## License
 
 The project is distributed under the Apache License, Version 2.0. The complete

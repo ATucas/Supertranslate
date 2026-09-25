@@ -1,4 +1,5 @@
 import type { SubtitleSegment } from "@subtitle/contracts";
+import { access } from "node:fs/promises";
 export interface SubtitleProvider {
   stream(
     sessionId: string,
@@ -38,5 +39,25 @@ export class SimulatedProvider implements SubtitleProvider {
         final: true,
       });
     }
+  }
+}
+
+export class VideoDemoProvider implements SubtitleProvider {
+  private readonly simulated: SimulatedProvider;
+
+  constructor(
+    private readonly videoPath: string,
+    intervalMs = 700,
+  ) {
+    this.simulated = new SimulatedProvider(intervalMs);
+  }
+
+  async stream(
+    sessionId: string,
+    onSegment: (segment: SubtitleSegment) => Promise<void> | void,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    await access(this.videoPath);
+    return this.simulated.stream(sessionId, onSegment, signal);
   }
 }

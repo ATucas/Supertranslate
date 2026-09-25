@@ -11,7 +11,8 @@
     "typecheck": "npm run typecheck -w @subtitle/contracts && npm run typecheck -w @subtitle/providers && npm run typecheck -w @subtitle/api && npm run typecheck -w @subtitle/worker && npm run typecheck -w @subtitle/web",
     "test": "npm run test -w @subtitle/contracts && npm run test -w @subtitle/providers && npm run test -w @subtitle/api",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "demo:video": "node scripts/video-demo.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
