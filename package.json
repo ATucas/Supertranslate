@@ -12,7 +12,8 @@
     "test": "npm run test -w @subtitle/contracts && npm run test -w @subtitle/providers && npm run test -w @subtitle/api",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "demo:video": "node scripts/video-demo.mjs"
+    "demo:video": "node scripts/video-demo.mjs",
+    "smoke:two-sessions": "node scripts/smoke-two-sessions.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -6,6 +6,7 @@ import type {
   Session,
   SubtitleSegment,
   ClientEvent,
+  SessionMetrics,
 } from "@subtitle/contracts";
 import { isCreateSessionInput } from "@subtitle/contracts";
 import type { WebSocket } from "ws";
@@ -14,6 +15,7 @@ export function buildApp(): FastifyInstance {
   const sessions = new Map<string, Session>();
   const segments = new Map<string, SubtitleSegment[]>();
   const sockets = new Map<string, Set<WebSocket>>();
+  const metrics = new Map<string, SessionMetrics>();
   app.register(cors, { origin: true });
   app.register(websocket);
   app.get("/health", async () => ({ status: "ok" }));
@@ -31,8 +33,49 @@ export function buildApp(): FastifyInstance {
     };
     sessions.set(session.id, session);
     segments.set(session.id, []);
+    metrics.set(session.id, {
+      provider: process.env.GEMINI_API_KEY ? "gemini" : "simulated",
+      latencyMs: 0,
+      chunksProcessed: 0,
+      errors: 0,
+      updatedAt: now,
+    });
     return reply.code(201).send(session);
   });
+  app.get<{ Params: { id: string } }>(
+    "/sessions/:id/metrics",
+    async (req, reply) => {
+      const value = metrics.get(req.params.id);
+      if (!value) return reply.code(404).send({ error: "session not found" });
+      return value;
+    },
+  );
+  app.get<{ Params: { id: string; format: string } }>(
+    "/sessions/:id/export/:format",
+    async (req, reply) => {
+      const list = segments.get(req.params.id);
+      if (!list) return reply.code(404).send({ error: "session not found" });
+      const format = req.params.format;
+      if (!["vtt", "srt", "txt"].includes(format))
+        return reply
+          .code(400)
+          .send({ error: "format must be vtt, srt, or txt" });
+      const body =
+        format === "vtt"
+          ? `WEBVTT\n\n${list.map((x, i) => `${i + 1}\n${time(x.startMs)} --> ${time(x.endMs)}\n${x.source}\n${x.translation}\n`).join("\n")}`
+          : format === "srt"
+            ? list
+                .map(
+                  (x, i) =>
+                    `${i + 1}\n${time(x.startMs, true)} --> ${time(x.endMs, true)}\n${x.source}\n${x.translation}\n`,
+                )
+                .join("\n")
+            : list.map((x) => `${x.source} / ${x.translation}`).join("\n");
+      return reply
+        .type(format === "txt" ? "text/plain" : "text/" + format)
+        .send(body);
+    },
+  );
   app.get<{ Params: { id: string } }>("/sessions/:id", async (req, reply) => {
     const session = sessions.get(req.params.id);
     if (!session) return reply.code(404).send({ error: "session not found" });
@@ -92,6 +135,16 @@ export function buildApp(): FastifyInstance {
       const list = segments.get(session.id) ?? [];
       if (!list.some((x) => x.id === event.id)) list.push(event);
       segments.set(session.id, list);
+      const current = metrics.get(session.id);
+      if (current) {
+        const updated = {
+          ...current,
+          chunksProcessed: current.chunksProcessed + 1,
+          updatedAt: new Date().toISOString(),
+        };
+        metrics.set(session.id, updated);
+        broadcast(session.id, { type: "session.metrics", metrics: updated });
+      }
       broadcast(req.params.id, { type: "subtitle.segment", segment: event });
       return reply.code(202).send();
     },
@@ -124,6 +177,13 @@ export function buildApp(): FastifyInstance {
   }
   function send(socket: WebSocket, event: ClientEvent) {
     if (socket.readyState === 1) socket.send(JSON.stringify(event));
+  }
+  function time(ms: number, srt = false) {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const millis = ms % 1000;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}${srt ? "," : "."}${String(millis).padStart(3, "0")}`;
   }
   return app;
 }

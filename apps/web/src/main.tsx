@@ -4,6 +4,7 @@ import type {
   Session,
   SubtitleSegment,
   ClientEvent,
+  SessionMetrics,
 } from "@subtitle/contracts";
 import "./style.css";
 const api = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
@@ -12,6 +13,8 @@ function App() {
   const [selected, setSelected] = useState("");
   const [segments, setSegments] = useState<SubtitleSegment[]>([]);
   const [error, setError] = useState("");
+  const [metrics, setMetrics] = useState<SessionMetrics>();
+  const [interim, setInterim] = useState("");
   useEffect(() => {
     fetch(`${api}/sessions`)
       .then((r) => r.json())
@@ -21,6 +24,7 @@ function App() {
   useEffect(() => {
     if (!selected) return;
     setSegments([]);
+    setInterim("");
     const ws = new WebSocket(
       `${api.replace(/^http/, "ws")}/sessions/${selected}/ws`,
     );
@@ -33,6 +37,9 @@ function App() {
             ? old
             : [...old, event.segment],
         );
+      else if (event.type === "subtitle.interim")
+        setInterim(`${event.source} / ${event.translation}`);
+      else if (event.type === "session.metrics") setMetrics(event.metrics);
     };
     ws.onerror = () => setError("WebSocket connection failed");
     return () => ws.close();
@@ -61,6 +68,14 @@ function App() {
       </section>
       {error && <p className="error">{error}</p>}
       <section className="captions">
+        {metrics && (
+          <aside className="metrics">
+            <strong>Production</strong> · {metrics.provider} ·{" "}
+            {metrics.chunksProcessed} chunks · {metrics.errors} errors ·{" "}
+            {metrics.latencyMs} ms
+          </aside>
+        )}
+        {interim && <article className="interim">{interim}</article>}
         {segments.length === 0 ? (
           <p className="empty">Select a session to watch captions.</p>
         ) : (
@@ -72,6 +87,13 @@ function App() {
           ))
         )}
       </section>
+      {selected && (
+        <nav className="exports">
+          Export: <a href={`${api}/sessions/${selected}/export/vtt`}>VTT</a>{" "}
+          <a href={`${api}/sessions/${selected}/export/srt`}>SRT</a>{" "}
+          <a href={`${api}/sessions/${selected}/export/txt`}>TXT</a>
+        </nav>
+      )}
     </main>
   );
 }

@@ -1,6 +1,13 @@
 # Subtitle Audience
 
-A TypeScript monorepo MVP for live bilingual subtitles. The API owns in-memory sessions and broadcasts subtitle events over WebSockets; a worker drives a deterministic simulated provider. The provider interface is intentionally ready for a future Gemini adapter, but this MVP has no external AI integration.
+A TypeScript monorepo MVP for live bilingual subtitles. The API owns in-memory sessions and broadcasts subtitle events over WebSockets; a worker can use either a deterministic simulated provider or the real Gemini adapter.
+
+The worker now also includes a real Gemini Live adapter. With `GEMINI_API_KEY`,
+`DEMO_VIDEO_PATH`, and FFmpeg configured, it extracts 16 kHz PCM chunks and
+sends them incrementally to Gemini for original-language transcription; each
+finalized caption is translated to Spanish through the official Google Gen AI
+SDK. Without those settings, the explicit simulated provider remains available
+for tests and offline demos.
 
 ## Requirements
 
@@ -29,6 +36,8 @@ Create a session (`curl -X POST localhost:3000/sessions -H 'content-type: applic
 Docker Compose starts all three services: `docker compose up --build`.
 
 See [architecture](docs/architecture.md) and [deployment](docs/deployment.md).
+For evaluation evidence, the real-demo script, and known gaps, see
+[docs/evaluation.md](docs/evaluation.md) and [docs/demo.md](docs/demo.md).
 
 ## License
 

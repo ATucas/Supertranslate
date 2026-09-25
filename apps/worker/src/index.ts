@@ -1,10 +1,23 @@
-import { SimulatedProvider, VideoDemoProvider } from "@subtitle/providers";
+import {
+  FfmpegAudioSource,
+  GeminiLiveProvider,
+  SimulatedProvider,
+  VideoDemoProvider,
+} from "@subtitle/providers";
 import type { Session } from "@subtitle/contracts";
 const api = process.env.API_URL ?? "http://localhost:3000";
 const intervalMs = Number(process.env.PROVIDER_INTERVAL_MS ?? 700);
-const provider = process.env.DEMO_VIDEO_PATH
-  ? new VideoDemoProvider(process.env.DEMO_VIDEO_PATH, intervalMs)
-  : new SimulatedProvider(intervalMs);
+const provider =
+  process.env.GEMINI_API_KEY && process.env.DEMO_VIDEO_PATH
+    ? new GeminiLiveProvider(
+        process.env.GEMINI_API_KEY,
+        new FfmpegAudioSource(process.env.DEMO_VIDEO_PATH),
+        process.env.GEMINI_LIVE_MODEL ?? "gemini-3.5-transcribe-live",
+        process.env.GEMINI_TARGET_LANGUAGE ?? "es",
+      )
+    : process.env.DEMO_VIDEO_PATH
+      ? new VideoDemoProvider(process.env.DEMO_VIDEO_PATH, intervalMs)
+      : new SimulatedProvider(intervalMs);
 const active = new Set<string>();
 async function tick() {
   const response = await fetch(`${api}/sessions`);

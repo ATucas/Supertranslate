@@ -79,6 +79,34 @@ audio was not extracted. The current provider is simulated, so its bilingual
 captions are deliberately marked as simulated and are not claimed to be
 transcriptions or translations of the MP4 audio.
 
+For real incremental Gemini transcription/translation, install FFmpeg and
+provide the key only to the worker:
+
+```bash
+GEMINI_API_KEY=... \
+DEMO_VIDEO_PATH=/absolute/path/video.mp4 \
+GEMINI_TARGET_LANGUAGE=es \
+npm --workspace @subtitle/worker start
+```
+
+The worker uses the official `@google/genai` Live API, sends mono signed
+16-bit 16 kHz PCM in approximately 100 ms chunks, and emits finalized
+original-language text plus Spanish translations through the existing API
+WebSocket. Gemini Live transcription is real, but requires a valid API key and
+has a documented ten-minute session limit; this implementation does not claim
+offline transcription when the key or FFmpeg is unavailable. The translation
+call uses the same official SDK with a text translation request per finalized
+caption to keep the UI contract bilingual.
+
+Required public configuration:
+
+| Variable                 | Service     | Purpose                                                        |
+| ------------------------ | ----------- | -------------------------------------------------------------- |
+| `GEMINI_API_KEY`         | worker only | Google AI authentication; never expose to Vite/browser         |
+| `GEMINI_LIVE_MODEL`      | worker      | Live transcription model, default `gemini-3.5-transcribe-live` |
+| `GEMINI_TARGET_LANGUAGE` | worker      | Translation target, default `es`                               |
+| `DEMO_VIDEO_PATH`        | worker      | Absolute local video path for FFmpeg                           |
+
 To show the same demo flow in the audience UI, start the API, create an active
 session, then start the worker with the source path:
 

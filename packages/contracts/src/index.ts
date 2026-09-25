@@ -18,10 +18,24 @@ export interface SubtitleSegment {
   endMs: number;
   final: boolean;
 }
+export interface SessionMetrics {
+  provider: "simulated" | "gemini";
+  latencyMs: number;
+  chunksProcessed: number;
+  errors: number;
+  updatedAt: string;
+}
 export type ClientEvent =
   | { type: "session.snapshot"; session: Session; segments: SubtitleSegment[] }
   | { type: "subtitle.segment"; segment: SubtitleSegment }
+  | {
+      type: "subtitle.interim";
+      sessionId: string;
+      source: string;
+      translation: string;
+    }
   | { type: "session.status"; status: SessionStatus }
+  | { type: "session.metrics"; metrics: SessionMetrics }
   | { type: "error"; message: string };
 export type ServerEvent = {
   type: "subtitle.segment";

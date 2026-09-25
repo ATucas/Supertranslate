@@ -10,7 +10,8 @@
     "test": "node --test dist/index.test.js"
   },
   "dependencies": {
-    "@subtitle/contracts": "0.1.0"
+    "@subtitle/contracts": "0.1.0",
+    "@google/genai": "^1.16.0"
   },
   "devDependencies": {
     "typescript": "^5.7.2"

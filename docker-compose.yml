@@ -16,7 +16,12 @@ services:
       retries: 10
   worker:
     build: { context: ., dockerfile: Dockerfile.worker }
-    environment: { API_URL: http://api:3000, POLL_INTERVAL_MS: 1000 }
+    environment:
+      API_URL: http://api:3000
+      POLL_INTERVAL_MS: 1000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_LIVE_MODEL: ${GEMINI_LIVE_MODEL:-gemini-3.5-transcribe-live}
+      GEMINI_TARGET_LANGUAGE: ${GEMINI_TARGET_LANGUAGE:-es}
     depends_on:
       api:
         condition: service_healthy
