@@ -1,0 +1,55 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #eef2ff;
+  background: #111827;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+header {
+  border-bottom: 1px solid #374151;
+  margin-bottom: 2rem;
+}
+h1 {
+  margin-bottom: 0.25rem;
+}
+.controls {
+  background: #1f2937;
+  padding: 1rem;
+  border-radius: 8px;
+}
+select {
+  margin-left: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+.captions {
+  margin-top: 2rem;
+}
+.empty {
+  color: #9ca3af;
+  text-align: center;
+}
+.captions article {
+  background: #1f2937;
+  margin: 0.75rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #60a5fa;
+  border-radius: 4px;
+  font-size: 1.25rem;
+}
+.translation {
+  color: #93c5fd;
+  margin-top: 0.35rem;
+}
+.error {
+  color: #fca5a5;
+}

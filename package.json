@@ -1,0 +1,23 @@
+{
+  "name": "subtitle-audience",
+  "private": true,
+  "license": "Apache-2.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @subtitle/contracts && npm run build -w @subtitle/providers && npm run build -w @subtitle/api && npm run build -w @subtitle/worker && npm run build -w @subtitle/web",
+    "typecheck": "npm run typecheck -w @subtitle/contracts && npm run typecheck -w @subtitle/providers && npm run typecheck -w @subtitle/api && npm run typecheck -w @subtitle/worker && npm run typecheck -w @subtitle/web",
+    "test": "npm run test -w @subtitle/contracts && npm run test -w @subtitle/providers && npm run test -w @subtitle/api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "demo:video": "node scripts/video-demo.mjs",
+    "smoke:two-sessions": "node scripts/smoke-two-sessions.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}
