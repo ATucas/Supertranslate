@@ -1,13 +1,9 @@
 # Subtitle Audience
 
-A TypeScript monorepo MVP for live bilingual subtitles. The API owns in-memory sessions and broadcasts subtitle events over WebSockets; a worker can use either a deterministic simulated provider or the real Gemini adapter.
 
-The worker now also includes a real Gemini Live adapter. With `GEMINI_API_KEY`,
-`DEMO_VIDEO_PATH`, and FFmpeg configured, it extracts 16 kHz PCM chunks and
-sends them incrementally to Gemini for original-language transcription; each
-finalized caption is translated to Spanish through the official Google Gen AI
-SDK. Without those settings, the explicit simulated provider remains available
-for tests and offline demos.
+Un MVP de monorepo en TypeScript para subtítulos bilingües en tiempo real. La API gestiona sesiones en memoria y transmite eventos de subtítulos mediante WebSockets; el *worker* puede utilizar un proveedor simulado determinista o el adaptador real de Gemini.
+
+El *worker* ahora también incluye un adaptador real para Gemini Live. Con la configuración adecuada de `GEMINI_API_KEY`, `DEMO_VIDEO_PATH` y FFmpeg, extrae fragmentos PCM a 16 kHz y los envía incrementalmente a Gemini para su transcripción en el idioma original; cada subtítulo finalizado se traduce al español utilizando el SDK oficial de Google Gen AI. Si no se dispone de dicha configuración, el proveedor simulado sigue estando disponible para pruebas y demostraciones sin conexión
 
 ## Requirements
 
